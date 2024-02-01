@@ -30,7 +30,7 @@ const findCategoriesByName = async () => {
 const createCategory = async (categoryName) => {
     try {
         const result = await Category.create({
-            name: "Food"
+            name: "Fruit"
         });
         console.log(`Category created successfully: ${JSON.stringify(result)}`);
     } catch (error) {
@@ -66,10 +66,10 @@ const deletingCategory = async () => {
 
 const createItem = async () => {
     const result = await Item.create({
-        name: 'Tortilla',
-        price: 100,
-        description: 'This is a tortilla',
-        categoryid: 1
+        name: 'Banana',
+        price: 10,
+        description: 'These are bananas',
+        categoryid: 6
     });
     console.log(JSON.stringify(result));
     return result;
@@ -90,7 +90,7 @@ const findItems = async () => {
     return itemsWithCategory;
 }
 
-findItems();
+// findItems();
 
 
 app.get('/api/categories', async (req, res, next) => {
@@ -115,20 +115,34 @@ app.get('/api/categories/:id', async (req, res, next) => {
     }
 });
 
+// ...
+
+// Modify the endpoint to display all items for a specific category by name
 app.get('/api/categories/name/:name', async (req, res, next) => {
     try {
-        const result = await Category.findAll({
-            where: {
-                name: req.params.name
-            }
+        const categoryName = req.params.name;
+
+        // Find the category by name
+        const category = await Category.findOne({
+            where: { name: categoryName },
         });
-        res.status(200).json(result);
+
+        if (!category) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+
+        // Retrieve all items associated with the category
+        const items = await category.getItems();
+
+        return res.status(200).json(items);
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+// ...
+
 
 // GET - /api/items - get all items
 app.get('/api/items', async (req, res, next) => {
@@ -142,6 +156,22 @@ app.get('/api/items', async (req, res, next) => {
     }
 });
 
+// GET - fruits and display name and description
+
+// app.get('/api/categories/name/unique/fruit', async (req, res, next) => {
+//     try {
+//         const result = await Item.findAll({
+//             where: {
+//                 categoryid: 6
+//             }
+//         });
+//         res.status(200).json(result);
+//     } catch (error) {
+//         res.status(500).json({
+//             message: error.message
+//         });
+//     }
+// });
 
 
 app.listen(PORT, () => {
