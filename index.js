@@ -1,5 +1,7 @@
 const express = require('express');
 const { sequelize, testConnection } = require('./models/conn');
+const { Op } = require('sequelize');
+
 // const Category = require('./models/categoryModel');
 // const Item = require('./models/itemModel');
 const { Item, Category } = require('./models/associations');
@@ -7,7 +9,7 @@ const { Item, Category } = require('./models/associations');
 const PORT = 8080;
 
 
-testConnection();   
+testConnection();
 
 const app = express();
 app.use(express.json());
@@ -156,22 +158,67 @@ app.get('/api/items', async (req, res, next) => {
     }
 });
 
-// GET - fruits and display name and description
+// update meat price
 
-// app.get('/api/categories/name/unique/fruit', async (req, res, next) => {
-//     try {
-//         const result = await Item.findAll({
-//             where: {
-//                 categoryid: 6
-//             }
-//         });
-//         res.status(200).json(result);
-//     } catch (error) {
-//         res.status(500).json({
-//             message: error.message
-//         });
-//     }
-// });
+// ...
+
+// update meat price
+const updateMeatPrices = async () => {
+    try {
+        const updatedData = {
+            price: parseFloat('120.99'), // Set the new price for meat
+        };
+
+        const result = await Item.update(updatedData, {
+            where: {
+                categoryid: 5, // Assuming categoryid 5 corresponds to the category for meat
+            },
+        });
+
+        console.log(`Meat prices updated successfully: ${JSON.stringify(result)}`);
+    } catch (error) {
+        console.error(`Error updating meat prices: ${error.message}`);
+    }
+};
+
+// Call the function to update meat prices
+//   updateMeatPrices();
+
+// Select all items with prices greater than 100
+
+// ...
+
+// Select all items with prices greater than or equal to 100
+// ...
+
+// Select all items with prices greater than or equal to 100
+// ...
+
+// Select all items with prices greater than or equal to 100
+// ...
+
+app.get('/api/items/expensive', async (req, res, next) => {
+    try {
+        const itemsOverOneHundred = await Item.findAll({
+            where: {
+                price: {
+                    [Op.gte]: 100,
+                },
+            },
+        });
+
+        res.status(200).json(itemsOverOneHundred);
+    } catch (error) {
+        console.error(error.message); // Log the error message
+        res.status(500).json({
+            message: 'Internal Server Error',
+        });
+    }
+});
+
+// ...
+
+
 
 
 app.listen(PORT, () => {
