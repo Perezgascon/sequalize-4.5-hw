@@ -1,7 +1,8 @@
 const express = require('express');
 const { sequelize, testConnection } = require('./models/conn');
-const Category = require('./models/categoryModel');
-const Item = require('./models/itemModel');
+// const Category = require('./models/categoryModel');
+// const Item = require('./models/itemModel');
+const { Item, Category } = require('./models/associations');
 
 const PORT = 8080;
 
@@ -74,7 +75,22 @@ const createItem = async () => {
     return result;
 }
 
-createItem();
+// createItem();
+
+// Associations
+const findItems = async () => {
+    const itemsWithCategory = await Item.findAll({
+        include: [{
+            model: Category,
+            as: 'category' // Only include if you have defined an alias in your association
+        }]
+    });
+
+    console.log(JSON.stringify(itemsWithCategory));
+    return itemsWithCategory;
+}
+
+findItems();
 
 
 app.get('/api/categories', async (req, res, next) => {
@@ -113,6 +129,19 @@ app.get('/api/categories/name/:name', async (req, res, next) => {
         });
     }
 });
+
+// GET - /api/items - get all items
+app.get('/api/items', async (req, res, next) => {
+    try {
+        const result = await Item.findAll();
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
+
 
 
 app.listen(PORT, () => {
